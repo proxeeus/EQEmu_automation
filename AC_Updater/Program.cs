@@ -35,8 +35,15 @@ namespace AC_Updater
 
         private static void AdjustAtkDelay()
         {
-            var zones = @"karnor,overthere,sebilis,dalnir,kaesora,droga,nurga,frontiermtns,lakeofillomen,cabeast,cabwest,swampofnohope,skyfire,charasis,emeraldjungle,trakanon,citymist,
-                        timorous,firiona,warslikswood,chardok,burningwood,dreadlands,fieldofbone,kurn";
+            //
+            // CONFIG
+            //var zones = @"karnor,overthere,sebilis,dalnir,kaesora,droga,nurga,frontiermtns,lakeofillomen,cabeast,cabwest,swampofnohope,skyfire,charasis,emeraldjungle,trakanon,citymist,
+            //           timorous,firiona,warslikswood,chardok,burningwood,dreadlands,fieldofbone,kurn";
+            var zones = @"qeynos,qeynos2,qrg,qeytoqrg,highpass,highkeep,freportn,freportw,freporte,runnyeye,qey2hh1,northkarana,southkarana,eastkarana,beholder,
+blackburrow,paw,rivervale,kithicor,commons,ecommons,erudnint,erudnext,nektulos,lavastorm,halas,everfrost,soldunga,soldungb,misty,nro,sro,befallen,oasis,tox,hole,
+neriaka,neriakb,neriakc,najena,qcat,innothule,feerrott,cazicthule,oggok,rathemtn,lakerathe,grobb,gfaydark,akanon,steamfont,lfaydark,crushbone,mistmoore,
+kaladima,felwithea,felwitheb,unrest,kedge,guktop,gukbottom,kaladimb,butcher,oot,cauldron,permafrost,kerraridge,paineel";
+            var tag = "classic"; // classic | kunark | velious
 
             var zoneList = zones.Split(',');
             foreach(var zone in zoneList)
@@ -78,25 +85,42 @@ namespace AC_Updater
                     foreach (var proxNpc in cleanProx)
                     {
                         int newAtkDelay = 0;
-                        if (proxNpc.Name != "Player_Bot" && Convert.ToInt32(proxNpc.Attack_Delay) >= 30)    // 30 is default db value and means we theoritically haven't touched it yet
+                        if (proxNpc.Name != "Player_Bot" && Convert.ToInt32(proxNpc.Attack_Delay) > 30)    // 30 is default db value and means we theoritically haven't touched it yet
                         {
                             Console.WriteLine("Processing NPC: [{0}] {1}.", proxNpc.Id, proxNpc.Name);
-                            // Level 1-25 NPCs should have 30 atk delay regardless of expac. Nothing should have more than 30.
-                            if (Convert.ToInt32(proxNpc.Level) >= 1 && Convert.ToInt32(proxNpc.Level) <= 25)
-                                newAtkDelay = 30;
-                            // Common Kunark through Luclin NPCs start gradually getting lower than 30 atk delays at level 25.
-                            // Level 50 common Kunark through Luclin NPCs have around 20 atk delay.
-                            // Level 60 common Kunark through Luclin NPCs have around 16 atk delay.
-                            else if (Convert.ToInt32(proxNpc.Level) >= 26 && Convert.ToInt32(proxNpc.Level) <= 59)
-                                newAtkDelay = 20;
-                            else if (Convert.ToInt32(proxNpc.Level) == 60)
-                                newAtkDelay = 16;
+                            if(tag == "kunark")
+                            {
+                                // Level 1-25 NPCs should have 30 atk delay regardless of expac. Nothing should have more than 30.
+                                if (Convert.ToInt32(proxNpc.Level) >= 0 && Convert.ToInt32(proxNpc.Level) <= 25)
+                                    newAtkDelay = 30;
+                                // Common Kunark through Luclin NPCs start gradually getting lower than 30 atk delays at level 25.
+                                // Level 50 common Kunark through Luclin NPCs have around 20 atk delay.
+                                // Level 60 common Kunark through Luclin NPCs have around 16 atk delay.
+                                else if (Convert.ToInt32(proxNpc.Level) >= 26 && Convert.ToInt32(proxNpc.Level) <= 59)
+                                    newAtkDelay = 20;
+                                else if (Convert.ToInt32(proxNpc.Level) == 60)
+                                    newAtkDelay = 16;
 
-                            // update queries
-                            queries.Add(string.Format("update npc_types set attack_delay='{0}' where name='{1}' and level='{2}' and id='{3}';", newAtkDelay, proxNpc.Name, proxNpc.Level, proxNpc.Id));
-                            // revert queries
-                            revertQueries.Add(string.Format("update npc_types set attack_delay='{0}' where name='{1}' and level='{2}' and id='{3}';", proxNpc.Attack_Delay, proxNpc.Name, proxNpc.Level, proxNpc.Id));
+                                // update queries
+                                queries.Add(string.Format("update npc_types set attack_delay='{0}' where name='{1}' and level='{2}' and id='{3}';", newAtkDelay, proxNpc.Name, proxNpc.Level, proxNpc.Id));
+                                // revert queries
+                                revertQueries.Add(string.Format("update npc_types set attack_delay='{0}' where name='{1}' and level='{2}' and id='{3}';", proxNpc.Attack_Delay, proxNpc.Name, proxNpc.Level, proxNpc.Id));
 
+                            }
+                            else if(tag == "classic")
+                            {
+                                // Level 1-25 NPCs should have 30 atk delay regardless of expac. Nothing should have more than 30.
+                                if (Convert.ToInt32(proxNpc.Level) >= 0 && Convert.ToInt32(proxNpc.Level) <= 25)
+                                    newAtkDelay = 30;
+                                // Classic old-world NPCs should have 30 atk delay, except for planar NPCs which should have 18-20.
+                                else if (Convert.ToInt32(proxNpc.Level) >= 26 && Convert.ToInt32(proxNpc.Level) <= 70)
+                                    newAtkDelay = 30;
+
+                                // update queries
+                                queries.Add(string.Format("update npc_types set attack_delay='{0}' where name='{1}' and level='{2}' and id='{3}';", newAtkDelay, proxNpc.Name, proxNpc.Level, proxNpc.Id));
+                                // revert queries
+                                revertQueries.Add(string.Format("update npc_types set attack_delay='{0}' where name='{1}' and level='{2}' and id='{3}';", proxNpc.Attack_Delay, proxNpc.Name, proxNpc.Level, proxNpc.Id));
+                            }
                         }
                     }
 
@@ -105,7 +129,7 @@ namespace AC_Updater
                         foreach (var adjQuery in queries)
                             streamWriter.WriteLine(adjQuery);
                     }
-                    using (var streamWriter = new StreamWriter(string.Format(@"C:\Users\proxeeus\Desktop\Perso\adjust\adjust_atk_delay_{0}_REVERT.sql", zone.Trim())))
+                    using (var streamWriter = new StreamWriter(string.Format(@"C:\Users\proxeeus\Desktop\Perso\adjust\revert\adjust_atk_delay_{0}_REVERT.sql", zone.Trim())))
                     {
                         foreach (var adjQuery in revertQueries)
                             streamWriter.WriteLine(adjQuery);
