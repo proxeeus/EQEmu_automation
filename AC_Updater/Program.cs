@@ -37,13 +37,13 @@ namespace AC_Updater
         {
             //
             // CONFIG
-            //var zones = @"karnor,overthere,sebilis,dalnir,kaesora,droga,nurga,frontiermtns,lakeofillomen,cabeast,cabwest,swampofnohope,skyfire,charasis,emeraldjungle,trakanon,citymist,
-            //           timorous,firiona,warslikswood,chardok,burningwood,dreadlands,fieldofbone,kurn";
-            var zones = @"qeynos,qeynos2,qrg,qeytoqrg,highpass,highkeep,freportn,freportw,freporte,runnyeye,qey2hh1,northkarana,southkarana,eastkarana,beholder,
-blackburrow,paw,rivervale,kithicor,commons,ecommons,erudnint,erudnext,nektulos,lavastorm,halas,everfrost,soldunga,soldungb,misty,nro,sro,befallen,oasis,tox,hole,
-neriaka,neriakb,neriakc,najena,qcat,innothule,feerrott,cazicthule,oggok,rathemtn,lakerathe,grobb,gfaydark,akanon,steamfont,lfaydark,crushbone,mistmoore,
-kaladima,felwithea,felwitheb,unrest,kedge,guktop,gukbottom,kaladimb,butcher,oot,cauldron,permafrost,kerraridge,paineel";
-            var tag = "classic"; // classic | kunark | velious
+            var zones = @"karnor,overthere,sebilis,dalnir,kaesora,droga,nurga,frontiermtns,lakeofillomen,cabeast,cabwest,swampofnohope,skyfire,charasis,emeraldjungle,trakanon,citymist,
+                       timorous,firiona,warslikswood,chardok,burningwood,dreadlands,fieldofbone,kurn";
+            //            var zones = @"qeynos,qeynos2,qrg,qeytoqrg,highpass,highkeep,freportn,freportw,freporte,runnyeye,qey2hh1,northkarana,southkarana,eastkarana,beholder,
+            //blackburrow,paw,rivervale,kithicor,commons,ecommons,erudnint,erudnext,nektulos,lavastorm,halas,everfrost,soldunga,soldungb,misty,nro,sro,befallen,oasis,tox,hole,
+            //neriaka,neriakb,neriakc,najena,qcat,innothule,feerrott,cazicthule,oggok,rathemtn,lakerathe,grobb,gfaydark,akanon,steamfont,lfaydark,crushbone,mistmoore,
+            //kaladima,felwithea,felwitheb,unrest,kedge,guktop,gukbottom,kaladimb,butcher,oot,cauldron,permafrost,kerraridge,paineel";
+            var tag = "kunark"; // classic | kunark | velious
 
             var zoneList = zones.Split(',');
             foreach(var zone in zoneList)
@@ -96,7 +96,13 @@ kaladima,felwithea,felwitheb,unrest,kedge,guktop,gukbottom,kaladimb,butcher,oot,
                                 // Common Kunark through Luclin NPCs start gradually getting lower than 30 atk delays at level 25.
                                 // Level 50 common Kunark through Luclin NPCs have around 20 atk delay.
                                 // Level 60 common Kunark through Luclin NPCs have around 16 atk delay.
-                                else if (Convert.ToInt32(proxNpc.Level) >= 26 && Convert.ToInt32(proxNpc.Level) <= 59)
+                                else if (Convert.ToInt32(proxNpc.Level) >= 26 && Convert.ToInt32(proxNpc.Level) <= 30)
+                                    newAtkDelay = 26;
+                                else if (Convert.ToInt32(proxNpc.Level) >= 31 && Convert.ToInt32(proxNpc.Level) <= 40)
+                                    newAtkDelay = 24;
+                                else if (Convert.ToInt32(proxNpc.Level) >= 41 && Convert.ToInt32(proxNpc.Level) <= 49)
+                                    newAtkDelay = 22;
+                                else if (Convert.ToInt32(proxNpc.Level) >= 50 && Convert.ToInt32(proxNpc.Level) <= 59)
                                     newAtkDelay = 20;
                                 else if (Convert.ToInt32(proxNpc.Level) == 60)
                                     newAtkDelay = 16;
