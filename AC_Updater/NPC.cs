@@ -12,5 +12,6 @@ namespace AC_Updater
         public string Name { get; set; }
         public string Level { get; set; }
         public string HP { get; set; }
+        public string Attack_Delay { get; set; }
     }
 }

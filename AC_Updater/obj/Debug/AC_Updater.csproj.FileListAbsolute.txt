@@ -8,3 +8,11 @@ c:\users\lenovo\documents\visual studio 2015\Projects\AC_Updater\AC_Updater\obj\
 C:\Users\LENOVO\Documents\Visual Studio 2015\Projects\AC_Updater\AC_Updater\obj\Debug\AC_Updater.csprojAssemblyReference.cache
 C:\Users\LENOVO\Documents\Visual Studio 2015\Projects\AC_Updater\AC_Updater\obj\Debug\AC_Updater.csproj.CoreCompileInputs.cache
 C:\Users\LENOVO\Documents\Visual Studio 2015\Projects\AC_Updater\AC_Updater\obj\Debug\AC_Updater.csproj.CopyComplete
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\bin\Debug\AC_Updater.exe.config
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\bin\Debug\AC_Updater.exe
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\bin\Debug\AC_Updater.pdb
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\obj\Debug\AC_Updater.csprojAssemblyReference.cache
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\obj\Debug\AC_Updater.csproj.CoreCompileInputs.cache
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\obj\Debug\AC_Updater.csproj.CopyComplete
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\obj\Debug\AC_Updater.exe
+C:\Users\proxeeus\Desktop\Perso\EQEmu_automation\AC_Updater\obj\Debug\AC_Updater.pdb
