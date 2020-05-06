@@ -26,11 +26,11 @@ namespace AC_Updater
             Console.WriteLine("Opening connection...");
 
             Console.WriteLine("Connection opened.");
-
+            RenameNotSpawning();
             //ProcessAC();
             //ProcessHP();
             //AdjustHP();
-            AdjustAtkDelay();
+            //AdjustAtkDelay();
         }
 
         private static void AdjustAtkDelay()
@@ -85,10 +85,10 @@ namespace AC_Updater
                     foreach (var proxNpc in cleanProx)
                     {
                         int newAtkDelay = 0;
-                        if (proxNpc.Name != "Player_Bot" && Convert.ToInt32(proxNpc.Attack_Delay) > 30)    // 30 is default db value and means we theoritically haven't touched it yet
+                        if (proxNpc.Name != "Player_Bot" && Convert.ToInt32(proxNpc.Attack_Delay) >= 30)    // 30 is default db value and means we theoritically haven't touched it yet
                         {
                             Console.WriteLine("Processing NPC: [{0}] {1}.", proxNpc.Id, proxNpc.Name);
-                            if(tag == "kunark")
+                            if(tag == "kunark" || tag == "velious")
                             {
                                 // Level 1-25 NPCs should have 30 atk delay regardless of expac. Nothing should have more than 30.
                                 if (Convert.ToInt32(proxNpc.Level) >= 0 && Convert.ToInt32(proxNpc.Level) <= 25)
@@ -104,7 +104,7 @@ namespace AC_Updater
                                     newAtkDelay = 22;
                                 else if (Convert.ToInt32(proxNpc.Level) >= 50 && Convert.ToInt32(proxNpc.Level) <= 59)
                                     newAtkDelay = 20;
-                                else if (Convert.ToInt32(proxNpc.Level) == 60)
+                                else if (Convert.ToInt32(proxNpc.Level) >= 60)
                                     newAtkDelay = 16;
 
                                 // update queries
@@ -147,9 +147,61 @@ namespace AC_Updater
             Console.ReadLine();
         }
 
+        private static void RenameNotSpawning()
+        {
+            var zone = "skyshrine";
+            var listProx = new List<NPC>();
+            var connectionString = "SERVER=" + server + ";" + "DATABASE=proxeeus_db;" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
+
+            connection = new MySqlConnection(connectionString);
+            OpenConnection();
+
+            var query = @"select * from npc_types where (id >= 114000 and id <= 114999) and id not in (SELECT nt.id
+                        FROM spawn2 s2 
+                        JOIN spawngroup sg ON sg.id = s2.spawngroupid 
+
+                        JOIN spawnentry se
+                        ON se.spawngroupid = sg.id 
+                        JOIN npc_types nt 
+                        ON nt.id = se.npcid 
+                        WHERE s2.zone = '"+ zone+ "');";
+
+            var cmd = new MySqlCommand(query, connection);
+            var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                var npc = new NPC() { Id = reader["id"].ToString(), Name = reader["name"].ToString() };
+                listProx.Add(npc);
+            }
+            reader.Close();
+            CloseConnection();
+
+            var queries = new List<string>();
+            foreach (var proxNpc in listProx)
+            {
+                if (proxNpc.Name != "Player_Bot" && !proxNpc.Name.StartsWith("__"))
+                {
+
+                    queries.Add(string.Format("update npc_types set name='__{0}' where name='{1}' and id='{2}';", proxNpc.Name, proxNpc.Name, proxNpc.Id));
+                    // revert queries
+                }
+
+            }
+
+            using (var streamWriter = new StreamWriter(string.Format(@"c:\adjust\adjust_{0}.sql", zone)))
+            {
+                foreach (var adjQuery in queries)
+                    streamWriter.WriteLine(adjQuery);
+            }
+
+            Console.WriteLine("Done !");
+            Console.ReadLine();
+        }
+
         private static void AdjustHP()
         {
-            var zone = "paw";
+            var zone = "chardok";
             var listProx = new List<NPC>();
             // Load Proxeeus
             var connectionString = "SERVER=" + server + ";" + "DATABASE=proxeeus_db;" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
@@ -179,7 +231,7 @@ namespace AC_Updater
             var queries = new List<string>();
             var revertQueries = new List<string>();
             var cleanProx = listProx.GroupBy(x => x.Id).Select(x => x.First()).ToList();
-            var percent = 28.5;
+            var percent = 50.0;
             queries.Add(string.Format("-- {0}% HP adjustment script for {1}.", percent.ToString(), zone));
             revertQueries.Add(string.Format("-- REVERT {0}% HP adjustment script for {1}.", percent.ToString(), zone));
             foreach (var proxNpc in cleanProx)
@@ -188,23 +240,24 @@ namespace AC_Updater
                 {
                     var decreasePercent = Math.Ceiling(Convert.ToInt32(proxNpc.HP) - (Convert.ToInt32(proxNpc.HP) * percent / 100));
                     // update queries
-                    queries.Add(string.Format("update npc_types set hp='{0}' where name='{1}' and level='{2}' and id='{3}'", decreasePercent, proxNpc.Name, proxNpc.Level, proxNpc.Id));
+                    queries.Add(string.Format("update npc_types set hp='{0}' where name='{1}' and level='{2}' and id='{3}';", decreasePercent, proxNpc.Name, proxNpc.Level, proxNpc.Id));
                     // revert queries
-                    revertQueries.Add(string.Format("update npc_types set hp='{0}' where name='{1}' and level='{2}' and id='{3}'", proxNpc.HP, proxNpc.Name, proxNpc.Level, proxNpc.Id));
+                    revertQueries.Add(string.Format("update npc_types set hp='{0}' where name='{1}' and level='{2}' and id='{3}';", proxNpc.HP, proxNpc.Name, proxNpc.Level, proxNpc.Id));
                 }
 
             }
 
-            using (var streamWriter = new StreamWriter(string.Format(@"c:\adjust_{0}.sql", zone)))
+            using (var streamWriter = new StreamWriter(string.Format(@"c:\adjust\adjust_{0}.sql", zone)))
             {
                 foreach (var adjQuery in queries)
                     streamWriter.WriteLine(adjQuery);
             }
-            using (var streamWriter = new StreamWriter(string.Format(@"c:\adjust_{0}_REVERT.sql", zone)))
+            using (var streamWriter = new StreamWriter(string.Format(@"c:\adjust\adjust_{0}_REVERT.sql", zone)))
             {
                 foreach (var adjQuery in revertQueries)
                     streamWriter.WriteLine(adjQuery);
             }
+            Console.WriteLine("Done !");
             Console.ReadLine();
         }
 
